@@ -6,7 +6,7 @@ on:
 jobs:
   update_dlls:
     name: Update LibBSP DLLs
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
     permissions:
       # We need to be able to:
       # 1. create a branch in a repo ('contents'), and 
