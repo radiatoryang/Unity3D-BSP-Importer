@@ -22,7 +22,7 @@ jobs:
     - name: Checkout LibBSP
       uses: actions/checkout@v2
       with:
-        repository: wfowler1/LibBSP
+        repository: radiatoryang/LibBSP
         path: LibBSP
 
     - name: Setup .NET
