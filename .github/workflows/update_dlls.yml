@@ -28,7 +28,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 4.7.1
 
     - name: Fetch all commits
       run: git fetch --unshallow
@@ -56,12 +56,12 @@ jobs:
         echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
         echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
 
-    # - name: Restore dependencies
-    #  run: dotnet restore
-    #  working-directory: ./LibBSP
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./LibBSP
 
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build --no-restore --configuration Release
       working-directory: ./LibBSP
       
     # Copy all of the dependency DLLs into the YarnSpinner-Unity repo, except
