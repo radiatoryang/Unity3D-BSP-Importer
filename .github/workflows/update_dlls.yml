@@ -69,7 +69,7 @@ jobs:
     # would cause an error.)
     - name: Copy DLLs
       run: |
-        cp -v LibBSP/LibBSP/bin/Release/*.dll Unity3D-BSP-Importer/Runtime/DLLs/*.dll
+        cp -v LibBSP/LibBSP/bin/Release/LibBSP.dll Unity3D-BSP-Importer/Runtime/DLLs/LibBSP.dll
     
     # Make the PR that merges this change
     - name: Create pull request
