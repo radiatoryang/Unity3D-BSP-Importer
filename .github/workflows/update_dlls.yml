@@ -70,7 +70,6 @@ jobs:
     - name: Copy DLLs
       run: |
         cp -v LibBSP/LibBSP/bin/Release/*.dll Unity3D-BSP-Importer/Runtime/DLLs
-        rm -Force Unity3D-BSP-Importer/Runtime/DLLs/Microsoft.CSharp.dll
     
     # Make the PR that merges this change
     - name: Create pull request
