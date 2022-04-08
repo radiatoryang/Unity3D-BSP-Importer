@@ -1,0 +1,90 @@
+name: Update DLLs 📚
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update_dlls:
+    name: Update LibBSP DLLs
+    runs-on: ubuntu-latest
+    permissions:
+      # We need to be able to:
+      # 1. create a branch in a repo ('contents'), and 
+      # 2. create a pull request using that branch ('pull-requests')
+      pull-requests: write
+      contents: write
+    
+    steps:
+    - name: Checkout Unity3D-BSP-Importer
+      uses: actions/checkout@v2
+      with:
+        path: Unity3D-BSP-Importer
+    - name: Checkout LibBSP
+      uses: actions/checkout@v2
+      with:
+        repository: wfowler1/LibBSP
+        path: LibBSP
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Fetch all commits
+      run: git fetch --unshallow
+      working-directory: ./LibBSP
+    
+    - uses: gittools/actions/gitversion/setup@v0.9.10
+      name: Install GitVersion
+      with:
+            versionSpec: '5.x'
+
+    # Update the assembly info for this build of YS, so that the About window is
+    # appropriate
+    - uses: gittools/actions/gitversion/execute@v0.9.10
+      name: Execute GitVersion
+      id: gitversion # step id used as reference for output values
+      with:
+        updateAssemblyInfo: true
+        targetPath: ./LibBSP
+    
+    - name: Print version information
+      run: |
+        echo "Major: ${{ steps.gitversion.outputs.major }}"
+        echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+        echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+        echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./LibBSP
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./LibBSP
+      
+    # Copy all of the dependency DLLs into the YarnSpinner-Unity repo, except
+    # for Microsoft.CSharp.dll (which is provided by Unity, so including it
+    # would cause an error.)
+    - name: Copy DLLs
+      run: |
+        cp -v LibBSP/LibBSP/bin/Release/netstandard2.0/*.dll Unity3D-BSP-Importer/Runtime/DLLs
+        rm -fv Unity3D-BSP-Importer/Runtime/DLLs/Microsoft.CSharp.dll
+    
+    # Make the PR that merges this change
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        path: ./Unity3D-BSP-Importer
+        commit-message: Update LibBSP DLLs to wfowler1/LibBSP@${{ steps.gitversion.outputs.shortSha }}
+        branch: update-dlls-${{ steps.gitversion.outputs.shortSha }}
+        title: Update LibBSP DLLs to latest (${{ steps.gitversion.outputs.shortSha }})
+        body: |
+          This is an automated PR made by @${{ github.actor }} that updates the precompiled LibBSP DLLs to wfowler1/LibBSP@${{ steps.gitversion.outputs.shortSha }} (v${{ steps.gitversion.outputs.fullSemVer }}).
+
+
+
+      
+
+      
